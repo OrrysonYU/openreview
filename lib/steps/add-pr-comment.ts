@@ -1,4 +1,4 @@
-import { getBot } from "@/lib/chat";
+import { bot } from "@/lib/chat";
 
 export const addPRComment = async (
   threadId: string,
@@ -6,6 +6,6 @@ export const addPRComment = async (
 ): Promise<void> => {
   "use step";
 
-  const adapter = getBot().getAdapter("github");
+  const adapter = bot.getAdapter("github");
   await adapter.postMessage(threadId, { markdown: body });
 };

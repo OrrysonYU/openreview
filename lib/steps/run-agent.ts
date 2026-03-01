@@ -4,7 +4,7 @@ import { ToolLoopAgent, stepCountIs, tool } from "ai";
 import { createBashTool } from "bash-tool";
 import { z } from "zod";
 
-import { getBot } from "@/lib/chat";
+import { bot } from "@/lib/chat";
 import { parseError } from "@/lib/error";
 
 export interface AgentResult {
@@ -46,7 +46,7 @@ Based on the user's request, decide what to do. Your capabilities include:
 - End every reply with a line break, a horizontal rule, then: *Powered by [OpenReview](https://github.com/haydenbleasel/openreview)*`;
 
 const createReplyTool = (threadId: string) => {
-  const adapter = getBot().getAdapter("github");
+  const adapter = bot.getAdapter("github");
 
   return tool({
     description:
