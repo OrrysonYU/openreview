@@ -2,6 +2,25 @@ import { Sandbox } from "@vercel/sandbox";
 
 import { parseError } from "@/lib/error";
 
+const detectInstallCommand = async (
+  sandbox: Sandbox
+): Promise<{ args: string[]; cmd: string }> => {
+  const checks = [
+    { args: ["install", "--frozen-lockfile"], cmd: "bun", lockfile: "bun.lock" },
+    { args: ["install", "--frozen-lockfile"], cmd: "pnpm", lockfile: "pnpm-lock.yaml" },
+    { args: ["install", "--frozen-lockfile"], cmd: "yarn", lockfile: "yarn.lock" },
+  ];
+
+  for (const { args, cmd, lockfile } of checks) {
+    const result = await sandbox.runCommand("test", ["-f", lockfile]);
+    if (result.exitCode === 0) {
+      return { args, cmd };
+    }
+  }
+
+  return { args: ["install"], cmd: "npm" };
+};
+
 export const installDependencies = async (sandboxId: string): Promise<void> => {
   "use step";
 
@@ -17,7 +36,13 @@ export const installDependencies = async (sandboxId: string): Promise<void> => {
   }
 
   try {
-    await sandbox.runCommand("ni", []);
+    const { cmd, args } = await detectInstallCommand(sandbox);
+
+    if (cmd !== "npm") {
+      await sandbox.runCommand("npm", ["install", "-g", cmd]);
+    }
+
+    await sandbox.runCommand(cmd, args);
   } catch (error) {
     throw new Error(
       `Failed to install project dependencies: ${parseError(error)}`,
