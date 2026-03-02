@@ -6,9 +6,21 @@ const detectInstallCommand = async (
   sandbox: Sandbox
 ): Promise<{ args: string[]; cmd: string }> => {
   const checks = [
-    { args: ["install", "--frozen-lockfile"], cmd: "bun", lockfile: "bun.lock" },
-    { args: ["install", "--frozen-lockfile"], cmd: "pnpm", lockfile: "pnpm-lock.yaml" },
-    { args: ["install", "--frozen-lockfile"], cmd: "yarn", lockfile: "yarn.lock" },
+    {
+      args: ["install", "--frozen-lockfile"],
+      cmd: "bun",
+      lockfile: "bun.lock",
+    },
+    {
+      args: ["install", "--frozen-lockfile"],
+      cmd: "pnpm",
+      lockfile: "pnpm-lock.yaml",
+    },
+    {
+      args: ["install", "--frozen-lockfile"],
+      cmd: "yarn",
+      lockfile: "yarn.lock",
+    },
   ];
 
   for (const { args, cmd, lockfile } of checks) {
@@ -36,15 +48,11 @@ export const installDependencies = async (sandboxId: string): Promise<void> => {
   }
 
   try {
-    // Install GitHub CLI
+    // Install GitHub CLI via direct binary
     await sandbox.runCommand("bash", [
       "-c",
-      [
-        "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg",
-        'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null',
-        "sudo apt-get update -qq",
-        "sudo apt-get install -y -qq gh",
-      ].join(" && "),
+      // oxlint-disable-next-line no-template-curly-in-string
+      'GH_VERSION=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | grep -o \'"tag_name":"v[^"]*\' | cut -d"v" -f2) && curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" | tar xz -C /tmp && mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh /usr/local/bin/gh',
     ]);
 
     // Install project dependencies
