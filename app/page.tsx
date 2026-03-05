@@ -38,10 +38,10 @@ export const DeployButton = () => {
   );
   url.searchParams.set(
     "demo-image",
-    "https://openreview.vercel.sh/opengraph-image.png"
+    "https://openreview.labs.vercel.dev/opengraph-image.png"
   );
-  url.searchParams.set("demo-title", "openreview.vercel.sh");
-  url.searchParams.set("demo-url", "https://openreview.vercel.sh/");
+  url.searchParams.set("demo-title", "openreview.labs.vercel.dev");
+  url.searchParams.set("demo-url", "https://openreview.labs.vercel.dev/");
 
   // Marketplace
   url.searchParams.set("from", "templates");
